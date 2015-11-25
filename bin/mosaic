@@ -1,0 +1,138 @@
+#!/usr/bin/env python
+# fsstat
+# Inspects the mimetype distribution of a directory.
+#
+# Author:   Benjamin Bengfort <benjamin@bengfort.com>
+# Created:  Tue Nov 24 15:09:19 2015 -0500
+#
+# Copyright (C) 2015 Bengfort.com
+# For license information, see LICENSE.txt
+#
+# ID: fsstat.py [] benjamin@bengfort.com $
+
+"""
+Inspects the mimetype distribution of a directory.
+"""
+
+##########################################################################
+## Imports
+##########################################################################
+
+import os
+import sys
+import json
+import time
+import magic
+import argparse
+
+from collections import Counter
+
+##########################################################################
+## Module Constants
+##########################################################################
+
+PROG = {
+    "version": "1.2",
+    "epilog": "Created for scientific purposes and not diagnostic ones.",
+    "description": "Inspects the mimetype distribution of a directory.",
+}
+
+def ishidden(fname):
+    """
+    Returns True if the file is a hidden file.
+    """
+    return fname[0] in {'.', '~'}
+
+
+def normpath(path):
+    """
+    Normalize a path from the shell
+    """
+    return os.path.expandvars(os.path.expanduser(path))
+
+
+def walk(path):
+    """
+    Overrides the os.walk and also provides a depth
+    """
+    startdepth = path.count(os.sep)
+    for name, dirs, files in os.walk(path):
+        depth = name.count(os.sep) - startdepth
+        yield name, dirs, files, depth
+
+
+def analyze(paths, include_hidden=False):
+    """
+    Mimetype frequency and space consumption analysis
+    """
+
+    nodes = Counter()   # inodes counts (e.g. file vs. directory)
+    mimes = Counter()   # mimetype frequency
+    store = Counter()   # mimetype storage in bytes
+    start = time.time() # time how long the walk takes
+
+    for path in paths:
+        path = normpath(path)
+
+        if not os.path.isdir(path):
+            continue
+
+        for dname, dirs, files, depth in walk(path):
+
+            if not include_hidden:
+                files   = [f for f in files if not ishidden(f)]
+                dirs[:] = [d for d in dirs if not ishidden(d)]
+
+            nodes['dirs']  += len(dirs)
+            nodes['files'] += len(files)
+
+            for fname in files:
+                try:
+                    fpath = os.path.join(dname, fname)
+                    mime  = magic.from_file(fpath, mime=True)
+
+                    mimes[mime] += 1
+                    store[mime] += os.stat(fpath).st_size
+                except Exception as e:
+                    print str(e)
+                    continue
+
+    return {
+        'nodes':  nodes,
+        'mimes':  mimes,
+        'store':  store,
+        'roots':  paths,
+        'timer': {
+            'begun':  start,
+            'finish': time.time(),
+            'elapsed': "{:0.3f} seconds".format(time.time() - start),
+        },
+        'include_hidden': include_hidden,
+        'version': PROG['version'],
+    }
+
+##########################################################################
+## Main Method and functionality
+##########################################################################
+
+def main(*argv):
+
+    parser = argparse.ArgumentParser(**PROG)
+    parser.add_argument('-I', '--include-hidden', action='store_true', help='include hidden files and directories')
+    parser.add_argument('path', nargs='+', help='path of directory to inspect')
+
+    args = parser.parse_args()
+
+    try:
+        data = analyze(args.path, args.include_hidden)
+        with open('fsstat-{}.json'.format(int(time.time())), 'w') as f:
+            json.dump(data, f, indent=2)
+
+        print "Walking {} directories and analyzing {} files took {}".format(
+            data['nodes']['dirs'], data['nodes']['files'], data['timer']['elapsed']
+        )
+    except Exception as e:
+        parser.error(str(e))
+
+if __name__ == "__main__":
+    main(*sys.argv[1:])
