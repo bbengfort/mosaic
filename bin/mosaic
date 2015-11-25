@@ -21,6 +21,7 @@ Inspects the mimetype distribution of a directory.
 import sys
 import json
 import time
+import mosaic
 import argparse
 
 from mosaic.analyze import analyze
@@ -30,7 +31,7 @@ from mosaic.analyze import analyze
 ##########################################################################
 
 PROG = {
-    "version": "1.2",
+    "version": mosaic.get_version(),
     "epilog": "Created for scientific purposes and not diagnostic ones.",
     "description": "Inspects the mimetype distribution of a directory.",
 }
