@@ -1,3 +1,4 @@
+[![Stories in Ready](https://badge.waffle.io/bbengfort/mosaic.png?label=ready&title=Ready)](https://waffle.io/bbengfort/mosaic)
 # Mosaic
 
 **User space file system usage analysis tool.**
