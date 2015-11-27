@@ -1,5 +1,6 @@
 # Production Requirements
 python-magic==0.4.10
+scandir==1.1
 
 # Development/Testing Requirements
 # Comment out for deployment

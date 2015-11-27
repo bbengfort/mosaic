@@ -19,6 +19,11 @@ Wrapper for common path based operations
 
 import os
 import magic
+import scandir
+
+##########################################################################
+## Module Constants
+##########################################################################
 
 DIRNODE  = "inode/directory"
 FILENODE = "inode/file"
@@ -27,12 +32,12 @@ FILENODE = "inode/file"
 ## Walking
 ##########################################################################
 
-def walk(path, include_hidden=False):
+def walk(path, include_hidden=False, walker=scandir.walk):
     """
     Walk a directory, excluding hidden directories and depth.
     """
 
-    for name, dirs, files in os.walk(path._path):
+    for name, dirs, files in walker(path._path):
         name  = Path(name)
         files = [name.join(f) for f in files]
         dirs  = [name.join(d) for d in dirs]
