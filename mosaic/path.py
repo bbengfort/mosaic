@@ -75,6 +75,11 @@ class Path(object):
     def __add__(self, other):
         return self.join(other)
 
+    def __eq__(self, other):
+        if isinstance(other, Path):
+            return self._path == other._path
+        return self._path == other
+
     @property
     def mimetype(self):
         if self._mimetype is None:
@@ -107,13 +112,13 @@ class Path(object):
         basename = os.path.basename(self._path)
         return basename[0] in {'.', '~'}
 
-    def join(self, subpath):
+    def join(self, *subpath):
         """
         Joins another path and returns a new path.
         """
-        if isinstance(subpath, Path):
-            subpath = subpath._path
-        return Path(os.path.join(self._path, subpath))
+        # Stringify paths in order to pass to join.
+        subpath = map(str, subpath)
+        return Path(os.path.join(self._path, *subpath))
 
     def list(self):
         """
