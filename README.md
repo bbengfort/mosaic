@@ -1,7 +1,10 @@
-[![Stories in Ready](https://badge.waffle.io/bbengfort/mosaic.png?label=ready&title=Ready)](https://waffle.io/bbengfort/mosaic)
 # Mosaic
 
 **User space file system usage analysis tool.**
+
+[![Build Status](https://travis-ci.org/bbengfort/mosaic.svg?branch=master)](https://travis-ci.org/bbengfort/mosaic)
+[![Coverage Status](https://coveralls.io/repos/bbengfort/mosaic/badge.svg?branch=master&service=github)](https://coveralls.io/github/bbengfort/mosaic?branch=master)
+[![Stories in Ready](https://badge.waffle.io/bbengfort/mosaic.png?label=ready&title=Ready)](https://waffle.io/bbengfort/mosaic)
 
 [![Buenos Aires (Emirates Air-Line campaign)][buenos_aires.jpg]][buenos_aires_flickr]
 
