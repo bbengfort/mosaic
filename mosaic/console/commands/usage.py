@@ -40,7 +40,7 @@ def path(val):
 class UsageCommand(Command):
 
     name = "usage"
-    help = "enumerate the simulations available for execution"
+    help = "performs file system usage analysis on a given directory."
 
     args = {
         ('-I', '--include-hidden'): {
