@@ -27,17 +27,18 @@ import scandir
 
 DIRNODE  = "inode/directory"
 FILENODE = "inode/file"
+LINKNODE = "inode/symlink"
 
 ##########################################################################
 ## Walking
 ##########################################################################
 
-def walk(path, include_hidden=False, walker=scandir.walk):
+def walk(path, include_hidden=False):
     """
     Walk a directory, excluding hidden directories and depth.
     """
 
-    for name, dirs, files in walker(path._path):
+    for name, dirs, files in scandir.walk(path._path):
         name  = Path(name)
         files = [name.join(f) for f in files]
         dirs  = [name.join(d) for d in dirs]
@@ -59,13 +60,38 @@ class Path(object):
     Note that the string is automatically expanded from user and env vars.
     """
 
-    def __init__(self, path):
+    @classmethod
+    def from_entry(klass, entry):
+        """
+        Creates a path from a scandir DirEntry.
+        """
+        # Initialize the path with various attributes.
+        path = klass(entry.path, inode=entry.inode())
+        path._nodestat = entry.stat(follow_symlinks=False)
+
+        # Set the nodetype on the path
+        if entry.is_dir(follow_symlinks=False):
+            path._nodetype = DIRNODE
+        elif entry.is_file(follow_symlinks=False):
+            path._nodetype = FILENODE
+        elif entry.is_symlink():
+            path._nodetype = LINKNODE
+        else:
+            path._nodetype = None
+
+        return path
+
+    def __init__(self, path, **kwargs):
         # Copy from another path if passed in
         if isinstance(path, Path):
             path = path._path
 
+        # Perform default Path manipulations
+        path = os.path.expandvars(os.path.expanduser(path))
+
         # Set various path information
-        self._path = os.path.expandvars(os.path.expanduser(path))
+        self._path     = path
+        self._inode    = kwargs.get('inode', None)
         self._mimetype = None
         self._nodetype = None
         self._filesize = None
@@ -86,6 +112,14 @@ class Path(object):
         return self._path == other
 
     @property
+    def inode(self):
+        if self._inode is None:
+            if self._nodestat is None:
+                self._nodestat = os.stat(self._path)
+            self._inode = self._nodestat.st_ino
+        return self._inode
+
+    @property
     def mimetype(self):
         if self._mimetype is None:
             self._mimetype = magic.from_file(self._path, mime=True)
@@ -99,6 +133,11 @@ class Path(object):
 
     def exists(self):
         return os.path.exists(self._path)
+
+    def is_symlink(self):
+        if self._nodetype is None:
+            self._nodetype = LINKNODE if os.path.islink(self._path) else None
+        return self._nodetype == LINKNODE
 
     def is_dir(self):
         if self._nodetype is None:
@@ -128,9 +167,10 @@ class Path(object):
     def list(self):
         """
         Returns a generator of paths inside of a directory.
+        This uses the scandir function for speed and reliability.
         """
-        for name in os.listdir(self._path):
-            yield self.join(name)
+        for entry in scandir.scandir(self._path):
+            yield Path.from_entry(entry)
 
     def relative_depth(self, subpath):
         """

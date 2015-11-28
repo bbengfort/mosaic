@@ -1,4 +1,4 @@
-# mosaic.analyze
+# mosaic.usage
 # Performs analysis of a file system usage.
 #
 # Author:   Benjamin Bengfort <bengfort@cs.umd.edu>
@@ -7,7 +7,7 @@
 # Copyright (C) 2015 University of Maryland
 # For license information, see LICENSE.txt
 #
-# ID: analyze.py [] benjamin@bengfort.com $
+# ID: usage.py [] benjamin@bengfort.com $
 
 """
 Performs analysis of a file system usage.

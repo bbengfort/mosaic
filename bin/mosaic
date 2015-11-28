@@ -24,7 +24,7 @@ import time
 import mosaic
 import argparse
 
-from mosaic.analyze import analyze
+from mosaic.usage import analyze
 
 ##########################################################################
 ## Module Constants
