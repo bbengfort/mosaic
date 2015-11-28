@@ -37,6 +37,8 @@ And with `virtualenv` alone:
     $ source venv/bin/activate
     (venv)$ pip install -r requirements.txt
 
+You should also add the mosaic package to your Python path. There are several ways to do this, my favorite is to export a `.pth` file into the site-packages directory of the virtualenv. (I also tend to add the `bin/` directory to the virtualenv ``$PATH` as well).
+
 At this point you should be able to run the tests and have them pass:
 
     (mosaic)$ make test
