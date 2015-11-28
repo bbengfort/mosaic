@@ -52,6 +52,22 @@ def walk(path, include_hidden=False):
         yield name, dirs, files, path.relative_depth(name)
 
 
+def scan(path, include_hidden=False):
+    """
+    Scan a directory, excluding hidden directories. Yields paths.
+    """
+
+    for subpath in path.list():
+        if not include_hidden and subpath.is_hidden():
+            continue
+
+        if subpath.is_dir():
+            for path in subpath.list():
+                yield path
+        else:
+            yield subpath
+
+
 ##########################################################################
 ## File System Utilities
 ##########################################################################
