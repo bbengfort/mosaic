@@ -1,6 +1,6 @@
 #!/usr/bin/env python
-# fsstat
-# Inspects the mimetype distribution of a directory.
+# mosaic
+# The main entry point into the Mosaic program.
 #
 # Author:   Benjamin Bengfort <benjamin@bengfort.com>
 # Created:  Tue Nov 24 15:09:19 2015 -0500
@@ -8,65 +8,22 @@
 # Copyright (C) 2015 Bengfort.com
 # For license information, see LICENSE.txt
 #
-# ID: fsstat.py [] benjamin@bengfort.com $
+# ID: mosaic [] benjamin@bengfort.com $
 
 """
-Inspects the mimetype distribution of a directory.
+The main entry point into the Mosaic program.
 """
 
 ##########################################################################
 ## Imports
 ##########################################################################
 
-import sys
-import time
-import mosaic
-import argparse
-
-from mosaic.path import Path
-from mosaic.usage import analyze
+from mosaic.console import MosaicUtility
 
 ##########################################################################
-## Module Constants
+## Main Method
 ##########################################################################
-
-PROG = {
-    "version": mosaic.get_version(),
-    "epilog": "Created for scientific purposes and not diagnostic ones.",
-    "description": "Inspects the mimetype distribution of a directory.",
-}
-
-##########################################################################
-## Helper functions
-##########################################################################
-
-def path(val):
-    val = Path(val)
-    if val.exists() and val.is_dir():
-        return str(val.join('mosaic-{}.json'.format(int(time.time()))))
-    return str(val)
-
-##########################################################################
-## Main Method and functionality
-##########################################################################
-
-def main(*argv):
-
-    parser = argparse.ArgumentParser(**PROG)
-    parser.add_argument('-I', '--include-hidden', action='store_true', help='include hidden files and directories')
-    parser.add_argument('-o', '--output', metavar='PTH', type=path, default='.', help='path or directory to write output to')
-    parser.add_argument('path', nargs=1, help='path of directory to inspect')
-
-    args = parser.parse_args()
-
-    try:
-        usage = analyze(args.path[0], args.include_hidden)
-        with open(args.output, 'w') as f:
-            usage.dump(f, indent=2)
-
-        print usage
-    except Exception as e:
-        parser.error(str(e))
 
 if __name__ == "__main__":
-    main(*sys.argv[1:])
+    utility = MosaicUtility.load()
+    utility.execute()
