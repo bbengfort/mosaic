@@ -21,6 +21,8 @@ import os
 import magic
 import scandir
 
+from mosaic.utils import memoized
+
 ##########################################################################
 ## Module Constants
 ##########################################################################
@@ -48,6 +50,29 @@ def walk(path, include_hidden=False):
             dirs[:] = filter(lambda p: p.is_hidden, dirs)
 
         yield name, dirs, files, path.relative_depth(name)
+
+
+##########################################################################
+## File System Utilities
+##########################################################################
+
+def get_tree_size(path):
+    """
+    Return total size of all files in directory tree at path.
+    Note: this is not part of the Path object for brevity.
+    """
+    if not isinstance(path, Path):
+        path = Path(path)
+
+    def get_size(path):
+        try:
+            if path.is_symlink(): return 0
+            if path.is_dir(): return get_tree_size(path)
+            return path.filesize
+        except OSError:
+            return 0
+
+    return sum(get_size(subpath) for subpath in path.list())
 
 
 ##########################################################################
@@ -91,10 +116,7 @@ class Path(object):
 
         # Set various path information
         self._path     = path
-        self._inode    = kwargs.get('inode', None)
-        self._mimetype = None
         self._nodetype = None
-        self._filesize = None
         self._nodestat = None
 
     def __str__(self):
@@ -111,21 +133,17 @@ class Path(object):
             return self._path == other._path
         return self._path == other
 
-    @property
+    @memoized
     def inode(self):
-        if self._inode is None:
-            if self._nodestat is None:
-                self._nodestat = os.stat(self._path)
-            self._inode = self._nodestat.st_ino
-        return self._inode
+        if self._nodestat is None:
+            self._nodestat = os.stat(self._path)
+        return self._nodestat.st_ino
 
-    @property
+    @memoized
     def mimetype(self):
-        if self._mimetype is None:
-            self._mimetype = magic.from_file(self._path, mime=True)
-        return self._mimetype
+        return magic.from_file(self._path, mime=True)
 
-    @property
+    @memoized
     def filesize(self):
         if self._nodestat is None:
             self._nodestat = os.stat(self._path)

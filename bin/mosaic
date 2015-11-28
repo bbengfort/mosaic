@@ -25,6 +25,7 @@ import mosaic
 import argparse
 
 from mosaic.usage import analyze
+from mosaic.utils import MosaicEncoder
 
 ##########################################################################
 ## Module Constants
@@ -51,7 +52,7 @@ def main(*argv):
     try:
         data = analyze(args.path[0], args.include_hidden)
         with open('mosaic-{}.json'.format(int(time.time())), 'w') as f:
-            json.dump(data, f, indent=2)
+            json.dump(data, f, indent=2, cls=MosaicEncoder)
 
         print "Walking {} directories and analyzing {} files took {}".format(
             data['nodes']['dirs'], data['nodes']['files'], data['timer']['elapsed']
