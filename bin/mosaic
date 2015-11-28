@@ -23,6 +23,7 @@ import time
 import mosaic
 import argparse
 
+from mosaic.path import Path
 from mosaic.usage import analyze
 
 ##########################################################################
@@ -36,6 +37,16 @@ PROG = {
 }
 
 ##########################################################################
+## Helper functions
+##########################################################################
+
+def path(val):
+    val = Path(val)
+    if val.exists() and val.is_dir():
+        return str(val.join('mosaic-{}.json'.format(int(time.time()))))
+    return str(val)
+
+##########################################################################
 ## Main Method and functionality
 ##########################################################################
 
@@ -43,13 +54,14 @@ def main(*argv):
 
     parser = argparse.ArgumentParser(**PROG)
     parser.add_argument('-I', '--include-hidden', action='store_true', help='include hidden files and directories')
+    parser.add_argument('-o', '--output', metavar='PTH', type=path, default='.', help='path or directory to write output to')
     parser.add_argument('path', nargs=1, help='path of directory to inspect')
 
     args = parser.parse_args()
 
     try:
         usage = analyze(args.path[0], args.include_hidden)
-        with open('mosaic-{}.json'.format(int(time.time())), 'w') as f:
+        with open(args.output, 'w') as f:
             usage.dump(f, indent=2)
 
         print usage
