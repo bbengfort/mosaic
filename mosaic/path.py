@@ -52,21 +52,30 @@ def walk(path, include_hidden=False):
         yield name, dirs, files, path.relative_depth(name)
 
 
-def scan(path, include_hidden=False):
+def scan(path, include_hidden=False, onerror=None):
     """
     Scan a directory, excluding hidden directories. Yields paths.
+    This method captures any OSErrors, passing them to the onerror function if
+    one is passed to the scanner; otherwise it simply ignores them.
     """
 
+    # Do not capture errors at the top level, only for subpaths.
     for subpath in path.list():
         if not include_hidden and subpath.is_hidden():
             continue
 
         yield subpath
 
-        if subpath.is_dir():
-            for child in scan(subpath):
-                yield child
-    
+        try:
+            # Recursively call scan on subdirectories.
+            # Ignore errors on recursive calls unless there is a handler.
+            if subpath.is_dir():
+                for child in scan(subpath):
+                    yield child
+        except OSError as e:
+            if onerror is not None: onerror(e)
+            continue
+
 
 ##########################################################################
 ## File System Utilities
@@ -129,6 +138,7 @@ class Path(object):
 
         # Perform default Path manipulations
         path = os.path.expandvars(os.path.expanduser(path))
+        path = os.path.normpath(path)
 
         # Set various path information
         self._path     = path
