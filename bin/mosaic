@@ -1,6 +1,6 @@
 #!/usr/bin/env python
-# fsstat
-# Inspects the mimetype distribution of a directory.
+# mosaic
+# The main entry point into the Mosaic program.
 #
 # Author:   Benjamin Bengfort <benjamin@bengfort.com>
 # Created:  Tue Nov 24 15:09:19 2015 -0500
@@ -8,56 +8,22 @@
 # Copyright (C) 2015 Bengfort.com
 # For license information, see LICENSE.txt
 #
-# ID: fsstat.py [] benjamin@bengfort.com $
+# ID: mosaic [] benjamin@bengfort.com $
 
 """
-Inspects the mimetype distribution of a directory.
+The main entry point into the Mosaic program.
 """
 
 ##########################################################################
 ## Imports
 ##########################################################################
 
-import sys
-import json
-import time
-import mosaic
-import argparse
-
-from mosaic.analyze import analyze
+from mosaic.console import MosaicUtility
 
 ##########################################################################
-## Module Constants
+## Main Method
 ##########################################################################
-
-PROG = {
-    "version": mosaic.get_version(),
-    "epilog": "Created for scientific purposes and not diagnostic ones.",
-    "description": "Inspects the mimetype distribution of a directory.",
-}
-
-##########################################################################
-## Main Method and functionality
-##########################################################################
-
-def main(*argv):
-
-    parser = argparse.ArgumentParser(**PROG)
-    parser.add_argument('-I', '--include-hidden', action='store_true', help='include hidden files and directories')
-    parser.add_argument('path', nargs=1, help='path of directory to inspect')
-
-    args = parser.parse_args()
-
-    try:
-        data = analyze(args.path[0], args.include_hidden)
-        with open('mosaic-{}.json'.format(int(time.time())), 'w') as f:
-            json.dump(data, f, indent=2)
-
-        print "Walking {} directories and analyzing {} files took {}".format(
-            data['nodes']['dirs'], data['nodes']['files'], data['timer']['elapsed']
-        )
-    except Exception as e:
-        parser.error(str(e))
 
 if __name__ == "__main__":
-    main(*sys.argv[1:])
+    utility = MosaicUtility.load()
+    utility.execute()
