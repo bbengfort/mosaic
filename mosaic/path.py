@@ -62,12 +62,12 @@ def scan(path, include_hidden=False):
         if not include_hidden and subpath.is_hidden():
             continue
 
-        if subpath.is_dir():
-            for path in subpath.list():
-                yield path
-        else:
-            yield subpath
+        yield subpath
 
+        if subpath.is_dir():
+            for child in scan(subpath):
+                yield child
+    
 
 ##########################################################################
 ## File System Utilities
