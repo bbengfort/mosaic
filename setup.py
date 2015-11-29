@@ -37,7 +37,7 @@ with open(versfile, 'r') as versf:
     version = namespace['get_version']()
 
 ## Discover the packages
-packages = find_packages(where=".", exclude=("tests", "bin", "docs", "fixtures", "register",))
+packages = find_packages(where=".", exclude=("tests", "bin", "docs", "fixtures", "register", "notebooks"))
 
 ## Load the requirements
 requires = []

@@ -27,9 +27,10 @@ from mosaic.utils import memoized
 ## Module Constants
 ##########################################################################
 
-DIRNODE  = "inode/directory"
-FILENODE = "inode/file"
-LINKNODE = "inode/symlink"
+DIRNODE   = "inode/directory"
+FILENODE  = "inode/file"
+LINKNODE  = "inode/symlink"
+EMPTYNODE = "inode/x-empty"
 
 ##########################################################################
 ## Walking
@@ -192,6 +193,13 @@ class Path(object):
         if self._nodetype is None:
             self._nodetype = FILENODE if os.path.isfile(self._path) else None
         return self._nodetype == FILENODE
+
+    def is_empty(self):
+        if self._nodetype is None:
+            if self.is_file():
+                if self.filesize == 0:
+                    self._nodetype = EMPTYNODE
+        return self._nodetype == EMPTYNODE
 
     def is_hidden(self):
         """

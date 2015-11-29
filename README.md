@@ -16,7 +16,7 @@ The simplest way to install the mosaic tools is to use the `setup.py` script inc
 
 This will install our file system analysis library to your Python site-pacakges as well as install a `mosaic` utility into your path. Of course you can also follow the development instructions below. In order to run a file system usage analysis on your home directory, use the `mosaic` utility as follows:
 
-    $ mosaic ~
+    $ mosaic usage ~
 
 This will recursively walk your home directory, counting different objects, and will write the analysis data structure to your current working directory.
 
@@ -36,6 +36,8 @@ And with `virtualenv` alone:
     $ virtualenv venv
     $ source venv/bin/activate
     (venv)$ pip install -r requirements.txt
+
+You should also add the mosaic package to your Python path. There are several ways to do this, my favorite is to export a `.pth` file into the site-packages directory of the virtualenv. (I also tend to add the `bin/` directory to the virtualenv ``$PATH` as well).
 
 At this point you should be able to run the tests and have them pass:
 
