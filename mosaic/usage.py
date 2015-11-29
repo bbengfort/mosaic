@@ -40,6 +40,7 @@ FINISHED = 2
 FILE = "files"
 DIRS = "dirs"
 LINK = "links"
+EMTY = "empty"
 UNKN = "unknown"
 
 
@@ -107,6 +108,8 @@ class FileUsage(object):
         else:
             usage.status = AWAITING
 
+        usage.version = data['version']
+
         return usage
 
     def __init__(self, root, **kwargs):
@@ -141,7 +144,7 @@ class FileUsage(object):
         """
         if self.status == FINISHED:
             return (
-                "Discovered {} files, {} symlinks, and {} directories in {:0.3f} seconds"
+                "Discovered {:,d} files, {:,d} symlinks, and {:,d} directories in {:0.3f} seconds"
                 .format(self.nodes[FILE], self.nodes[LINK], self.nodes[DIRS], self.elapsed)
             )
 
@@ -191,6 +194,9 @@ class FileUsage(object):
         if path.is_dir():
             self.nodes[DIRS] += 1
 
+        elif path.is_empty():
+            self.nodes[EMTY] += 1
+
         elif path.is_file():
             self.nodes[FILE] += 1
 
@@ -221,7 +227,7 @@ class FileUsage(object):
             'root':   self.root,
             'size':   humanize_bytes(self.size),
             'items':  self.items,
-            'types':  self.types, 
+            'types':  self.types,
             'timer': {
                 'started':  datetime.utcfromtimestamp(self.started),
                 'finished': datetime.utcfromtimestamp(self.finished),
