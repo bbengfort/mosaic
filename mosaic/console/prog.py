@@ -141,4 +141,4 @@ class ConsoleProgram(object):
         except Exception as e:
             if hasattr(args, 'traceback') and args.traceback:
                 traceback.print_exc()
-            self.parser.error(1, str(e))               # Exit with error
+            self.parser.error(str(e))                  # Exit with error

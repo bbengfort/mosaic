@@ -55,7 +55,7 @@ class PathTests(unittest.TestCase):
             "test.json",
         )
 
-        paths = zip(paths, map(Path, paths))
+        paths = zip(map(os.path.normpath, paths), map(Path, paths))
 
         for ((pstr_a, pobj_a), (pstr_b, pobj_b)) in permutations(paths, r=2):
             self.assertEqual(pobj_a + pobj_b, os.path.join(pstr_a, pstr_b))
@@ -71,7 +71,7 @@ class PathTests(unittest.TestCase):
             "test.json",
         )
 
-        paths = zip(paths, map(Path, paths))
+        paths = zip(map(os.path.normpath, paths), map(Path, paths))
 
         for ((pstr_a, pobj_a), (pstr_b, pobj_b)) in permutations(paths, r=2):
             self.assertEqual(pobj_a.join(pobj_b), os.path.join(pstr_a, pstr_b))
